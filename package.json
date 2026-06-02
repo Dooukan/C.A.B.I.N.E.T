@@ -1,0 +1,13 @@
+{
+  "name": "cabinet",
+  "version": "1.0.0",
+  "description": "C.A.B.I.N.E.T. — Cabinet And Blocks Is Not Etch Together",
+  "private": true,
+  "scripts": {
+    "dev": "live-server --port=8080",
+    "start": "live-server --port=8080"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

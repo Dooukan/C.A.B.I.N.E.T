@@ -1,0 +1,106 @@
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;overflow:hidden;height:100vh}
+#canvas{display:block;width:100%;height:100%}
+
+#welcome{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:200}
+#welcome.hidden{display:none}
+#welcomeBox{background:#1e1e3a;border:1px solid #444;border-radius:16px;padding:36px 40px;min-width:360px;text-align:center}
+#welcomeBox h2{color:#fff;margin-bottom:8px;font-size:20px}
+#welcomeBox p{color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px}
+#welcomeBox .field{margin-bottom:16px;text-align:left}
+#welcomeBox label{display:block;color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+#welcomeBox input{width:100%;background:#1a1a3a;border:1px solid #333;border-radius:8px;padding:10px 12px;color:#fff;font-size:16px;outline:none;text-align:center}
+#welcomeBox input:focus{border-color:#e67e22}
+#welcomeBox .btns{display:flex;gap:10px;margin-top:24px}
+#welcomeBox .btns button{flex:1;padding:12px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}
+#welcomeBox .btns .ok{background:#e67e22;color:#fff}
+#welcomeBox .btns .ok:hover{background:#d35400}
+
+#sidebar{position:absolute;top:44px;left:0;width:200px;height:calc(100% - 44px);background:rgba(20,20,45,0.88);backdrop-filter:blur(6px);border-right:1px solid rgba(255,255,255,0.06);padding:16px 0;z-index:2}
+#sidebar .title{padding:0 16px 12px;color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:1.5px}
+#sidebar ul{list-style:none;padding-left:0;overflow-y:auto;max-height:calc(100% - 44px)}
+#sidebar li{padding:7px 16px;cursor:pointer;font-size:13px;color:#bbb;display:block;border-left:3px solid transparent;transition:.12s}
+#sidebar li:hover{background:rgba(255,255,255,0.04);color:#fff}
+#sidebar li.selected{background:rgba(230,126,34,0.15);color:#e67e22;border-left-color:#e67e22}
+#sidebar li .icon{font-size:10px;opacity:0.35;display:inline-block;width:14px;text-align:center}
+#props{position:absolute;top:44px;right:0;width:220px;height:calc(100% - 44px);background:rgba(20,20,45,0.88);backdrop-filter:blur(6px);border-left:1px solid rgba(255,255,255,0.06);padding:16px;overflow-y:auto;display:none;z-index:2}
+#props.show{display:block}
+#props .title{color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+#props .section{margin-bottom:16px}
+#props .section-title{color:rgba(255,255,255,0.3);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+#props .field{margin-bottom:10px}
+#props label{display:block;color:rgba(255,255,255,0.35);font-size:10px;margin-bottom:3px}
+#props input,#props select{width:100%;background:#1a1a3a;border:1px solid #333;border-radius:6px;padding:6px 8px;color:#ddd;font-size:13px;outline:none}
+#props input:focus,#props select:focus{border-color:#e67e22}
+#props .row{display:flex;gap:6px}
+#props .row .field{flex:1}
+#props input[type="color"]{height:34px;padding:2px;cursor:pointer}
+#props .actions{display:flex;gap:6px;margin-top:12px}
+#props .actions button{flex:1;padding:8px;border:1px solid #444;background:#2a2a4a;color:#bbb;border-radius:6px;cursor:pointer;font-size:12px;transition:.15s}
+#props .actions button:hover{background:#3a3a6a;color:#fff}
+
+#toolbar{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(30,30,60,0.9);padding:8px 12px;border-radius:12px;backdrop-filter:blur(6px);z-index:3;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+#toolbar button{background:#2a2a4a;color:#aaa;border:1px solid #444;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px}
+#toolbar button:hover{background:#3a3a6a;color:#fff}
+#toolbar button.active{background:#e67e22;color:#fff;border-color:#e67e22}
+#toolbar .sep{width:1px;background:#444;margin:0 4px}
+
+#topbar{position:absolute;top:0;left:0;width:100%;height:44px;background:rgba(20,20,45,0.92);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 12px;gap:4px;z-index:5;overflow-x:auto}
+#topbar button{background:#2a2a4a;color:#aaa;border:1px solid #444;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+#topbar button:hover{background:#3a3a6a;color:#fff}
+#topbar .sep{width:1px;background:#444;margin:0 6px;flex-shrink:0}
+
+#hint{position:absolute;top:56px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.3);font-size:12px;pointer-events:none;transition:.3s;text-align:center}
+#hint.hidden{opacity:0}
+
+#dialog{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:300}
+#dialog.show{display:flex}
+#dialogBox{background:#1e1e3a;border:1px solid #444;border-radius:12px;padding:24px 28px;min-width:300px}
+#dialogBox h3{color:#fff;margin-bottom:12px;font-size:16px}
+#dialogBox input{width:100%;background:#1a1a3a;border:1px solid #333;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;outline:none;margin-bottom:16px}
+#dialogBox input:focus{border-color:#e67e22}
+#dialogBox .btns{display:flex;gap:8px;justify-content:flex-end}
+#dialogBox .btns button{padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+#dialogBox .btns .ok{background:#e67e22;color:#fff}
+#dialogBox .btns .cancel{background:#444;color:#bbb}
+
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#e67e22;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:300}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+#exportModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:300}
+#exportModal.show{display:flex}
+#exportBox{background:#1e1e3a;border:1px solid #444;border-radius:12px;padding:24px 28px;min-width:500px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column}
+#exportBox h3{color:#fff;margin-bottom:16px;font-size:16px}
+#exportBox table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;color:#ddd}
+#exportBox th{background:#2a2a4a;color:#e67e22;padding:8px;text-align:left;border:1px solid #444}
+#exportBox td{padding:6px 8px;border:1px solid #333}
+#exportBox tr:nth-child(even){background:rgba(255,255,255,0.03)}
+#exportBox .total{color:#e67e22;font-weight:600;font-size:14px;margin-bottom:12px}
+#exportBox .btns{display:flex;gap:8px;justify-content:flex-end}
+#exportBox .btns button{padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+#exportBox .btns .ok{background:#e67e22;color:#fff}
+#exportBox .btns .cancel{background:#444;color:#bbb}
+
+#calcPanel{position:fixed;top:56px;right:230px;width:240px;background:rgba(30,30,60,0.95);border:1px solid #444;border-radius:12px;padding:12px;z-index:250;backdrop-filter:blur(6px);display:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);user-select:none}
+#calcPanel.show{display:block}
+#calcHeader{cursor:move;padding:4px 0 8px;color:rgba(255,255,255,0.3);font-size:10px;text-transform:uppercase;letter-spacing:1px;text-align:center}
+#calcDisplay{width:100%;background:#1a1a3a;border:1px solid #333;border-radius:8px;padding:10px 12px;color:#fff;font-size:18px;text-align:right;outline:none;margin-bottom:8px;font-family:'Courier New',monospace}
+#calcDisplay:focus{border-color:#e67e22}
+#calcGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+#calcGrid button{padding:12px;border:1px solid #444;background:#2a2a4a;color:#ddd;border-radius:6px;cursor:pointer;font-size:14px;transition:.15s}
+#calcGrid button:hover{background:#3a3a6a;color:#fff}
+#calcGrid button.op{background:#e67e22;color:#fff;border-color:#e67e22}
+#calcGrid button.op:hover{background:#d35400}
+#calcGrid button.clear{background:#c0392b;color:#fff;border-color:#c0392b}
+#calcGrid button.clear:hover{background:#e74c3c}
+
+.cellMarker{position:absolute;width:16px;height:16px;cursor:pointer;transform:translate(-50%,-50%);z-index:10;display:flex}
+.cellMarker .half{width:0;height:0;cursor:pointer;transition:.15s}
+.cellMarker .half:first-child{border-top:8px solid transparent;border-bottom:8px solid transparent;border-right:8px solid rgba(230,126,34,0.4)}
+.cellMarker .half:last-child{border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:8px solid rgba(230,126,34,0.4)}
+.cellMarker .half:hover:first-child{border-right-color:rgba(230,126,34,0.8)}
+.cellMarker .half:hover:last-child{border-left-color:rgba(230,126,34,0.8)}
+.cellMarker.selected .half:first-child{border-right-color:#fff}
+.cellMarker.selected .half:last-child{border-left-color:#fff}
+.cellMarker.selected .half.active:first-child{border-right-color:#e67e22}
+.cellMarker.selected .half.active:last-child{border-left-color:#e67e22}
