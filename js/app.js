@@ -635,8 +635,9 @@ renderer.domElement.addEventListener('click', (e) => {
   _selectedCells = [];
   _selectedCellSide = null;
   document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
-  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  const cr = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((e.clientX - cr.left) / cr.width) * 2 - 1;
+  pointer.y = -((e.clientY - cr.top) / cr.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
   const meshes = [];
   for (const node of nodeMap.values()) { if (node.mesh && !node._isBodyPanel) meshes.push(node.mesh); }
