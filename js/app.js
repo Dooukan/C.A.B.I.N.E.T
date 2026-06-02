@@ -540,6 +540,7 @@ function _boxSelectIn(screenRect) {
   _selectedCellSide = null;
   const cells = getCells();
   if (!cells.length) return;
+  const rect = renderer.domElement.getBoundingClientRect();
   const v = new THREE.Vector3();
   const boxCx = (screenRect.x + screenRect.z) / 2;
   for (const cell of cells) {
@@ -550,8 +551,8 @@ function _boxSelectIn(screenRect) {
     let hit = false;
     for (const [px, py] of cc) {
       v.set(px, py, 0).project(camera);
-      const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
-      const sy = (-v.y * 0.5 + 0.5) * window.innerHeight;
+      const sx = rect.left + (v.x * 0.5 + 0.5) * rect.width;
+      const sy = rect.top + (-v.y * 0.5 + 0.5) * rect.height;
       if (v.z <= 1 && sx >= screenRect.x && sx <= screenRect.z && sy >= screenRect.y && sy <= screenRect.w) {
         hit = true;
         break;
@@ -560,9 +561,10 @@ function _boxSelectIn(screenRect) {
     if (!hit) continue;
     _selectedCells.push(cell);
     v.set(cell.cx, cell.cy, 0).project(camera);
-    const cellSx = (v.x * 0.5 + 0.5) * window.innerWidth;
+    const cellSx = rect.left + (v.x * 0.5 + 0.5) * rect.width;
     _selectedCellSide = boxCx > cellSx ? 'right' : 'left';
   }
+  _clearBoxHighlights();
   if (!_selectedCells.length) return;
   document.querySelectorAll('.cellMarker').forEach(m => {
     const inSel = _selectedCells.some(c => +m.dataset.cx === c.cx && +m.dataset.cy === c.cy);
@@ -570,7 +572,6 @@ function _boxSelectIn(screenRect) {
     const activeHalf = inSel ? _selectedCellSide : null;
     m.querySelectorAll('.half').forEach(h => h.classList.toggle('active', activeHalf && h.dataset.side === activeHalf));
   });
-  _clearBoxHighlights();
 }
 
 const _boxSelect = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, el: null };

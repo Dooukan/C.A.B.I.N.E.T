@@ -145,12 +145,13 @@ function renderCellMarkers() {
   _cellMarkers = [];
   _selectedCells = [];
   if (!cabinet || activeTool !== 'select') return;
+  const rect = renderer.domElement.getBoundingClientRect();
   const cells = getCells();
   for (const cell of cells) {
     const v = new THREE.Vector3(cell.cx, cell.cy, 0);
     const screenPos = v.clone().project(camera);
-    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+    const x = rect.left + (screenPos.x * 0.5 + 0.5) * rect.width;
+    const y = rect.top + (-screenPos.y * 0.5 + 0.5) * rect.height;
     if (screenPos.z > 1) continue;
     const el = document.createElement('div');
     el.className = 'cellMarker';
