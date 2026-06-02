@@ -536,23 +536,24 @@ function _clearBoxHighlights() {
 }
 
 function _boxSelectIn(screenRect) {
-  _selectedCells = [];
-  _selectedCellSide = null;
   _clearBoxHighlights();
-  const boxCx = (screenRect.x + screenRect.z) / 2;
   const hits = [];
   for (const m of document.querySelectorAll('.cellMarker')) {
     const r = m.getBoundingClientRect();
     if (r.right < screenRect.x || r.left > screenRect.z || r.bottom < screenRect.y || r.top > screenRect.w) continue;
     hits.push({ el: m, rect: r });
-    _selectedCells.push({
-      xL: +m.dataset.xl, xR: +m.dataset.xr, yB: +m.dataset.yb, yT: +m.dataset.yt,
-      cx: +m.dataset.cx, cy: +m.dataset.cy, w: +m.dataset.w, h: +m.dataset.h,
-    });
   }
   if (!hits.length) return;
+  _selectedCells = [];
+  _selectedCellSide = null;
+  document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
+  const boxCx = (screenRect.x + screenRect.z) / 2;
   _selectedCellSide = boxCx > hits.reduce((s, h) => s + (h.rect.left + h.rect.right) / 2, 0) / hits.length ? 'right' : 'left';
   for (const { el } of hits) {
+    _selectedCells.push({
+      xL: +el.dataset.xl, xR: +el.dataset.xr, yB: +el.dataset.yb, yT: +el.dataset.yt,
+      cx: +el.dataset.cx, cy: +el.dataset.cy, w: +el.dataset.w, h: +el.dataset.h,
+    });
     el.classList.add('selected');
     el.querySelectorAll('.half').forEach(h => h.classList.toggle('active', h.dataset.side === _selectedCellSide));
   }
@@ -602,9 +603,6 @@ document.addEventListener('mouseup', (e) => {
   const dx = Math.abs(_boxSelect.endX - _boxSelect.startX);
   const dy = Math.abs(_boxSelect.endY - _boxSelect.startY);
   if (dx < 5 && dy < 5) return;
-  _selectedCells = [];
-  _selectedCellSide = null;
-  document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
   _boxSelectIn({
     x: Math.min(_boxSelect.startX, _boxSelect.endX),
     y: Math.min(_boxSelect.startY, _boxSelect.endY),

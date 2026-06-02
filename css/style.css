@@ -96,7 +96,7 @@ body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;overflow:hidden;height
 #calcGrid button.clear{background:#c0392b;color:#fff;border-color:#c0392b}
 #calcGrid button.clear:hover{background:#e74c3c}
 
-.cellMarker{position:absolute;width:16px;height:16px;cursor:pointer;transform:translate(-50%,-50%);z-index:10;display:flex}
+.cellMarker{position:absolute;width:16px;height:16px;cursor:pointer;transform:translate(-50%,-50%);z-index:150;display:flex}
 .cellMarker .half{width:0;height:0;cursor:pointer;transition:.15s}
 .cellMarker .half:first-child{border-top:8px solid transparent;border-bottom:8px solid transparent;border-right:8px solid rgba(230,126,34,0.4)}
 .cellMarker .half:last-child{border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:8px solid rgba(230,126,34,0.4)}
