@@ -70,6 +70,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.minDistance = 50;
 controls.maxDistance = 1500;
+controls.mouseButtons.RIGHT = null;
 
 const transformControls = new THREE.TransformControls(camera, canvas);
 transformControls.setMode('translate');
@@ -542,8 +543,12 @@ document.getElementById('toolSelect').addEventListener('click', () => setActiveT
 document.getElementById('toolMove').addEventListener('click', () => setActiveTool('move'));
 
 let _shiftLock = false;
+const _keys = { w: false, a: false, s: false, d: false, shift: false };
 
 document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+  const k = e.key.toLowerCase();
+  if (k === 'w' || k === 'a' || k === 's' || k === 'd') { _keys[k] = true; e.preventDefault(); }
   if (e.key === 'x' && !e.ctrlKey && !e.metaKey) {
     setActiveTool(activeTool === 'select' ? 'move' : 'select');
   }
@@ -552,6 +557,8 @@ document.addEventListener('keydown', (e) => {
   }
 });
 document.addEventListener('keyup', (e) => {
+  const k = e.key.toLowerCase();
+  if (k === 'w' || k === 'a' || k === 's' || k === 'd') { _keys[k] = false; }
   if (e.key === 'Shift') {
     controls.enabled = true;
   }
@@ -726,6 +733,21 @@ resize();
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  if (_keys.w || _keys.a || _keys.s || _keys.d) {
+    const speed = 3;
+    const fwd = new THREE.Vector3();
+    camera.getWorldDirection(fwd);
+    fwd.y = 0; fwd.normalize();
+    const rgt = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
+    const move = new THREE.Vector3();
+    if (_keys.w) move.add(fwd);
+    if (_keys.s) move.sub(fwd);
+    if (_keys.a) move.sub(rgt);
+    if (_keys.d) move.add(rgt);
+    move.multiplyScalar(speed);
+    camera.position.add(move);
+    controls.target.add(move);
+  }
   if (selectedNode && activeTool === 'move') {
     const dist = camera.position.distanceTo(selectedNode.group.position);
     const s = Math.max(0.4, dist / 400);
