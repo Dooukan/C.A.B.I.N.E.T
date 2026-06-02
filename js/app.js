@@ -535,53 +535,42 @@ function _clearBoxHighlights() {
   _boxHighlighted = [];
 }
 
-function _boxSelectNodeIn(screenRect) {
-  _clearBoxHighlights();
-  if (selectedNode && selectedNode._outline) selectedNode._outline.visible = false;
-  selectedNode = null;
-  renderProps();
-  const worldBox = new THREE.Box3();
-  const corners = [];
-  for (let i = 0; i < 8; i++) corners.push(new THREE.Vector3());
-  let firstHit = null;
-  for (const node of nodeMap.values()) {
-    if (node._noMesh || node._isBodyPanel || !node.mesh) continue;
-    worldBox.setFromObject(node.mesh);
-    if (worldBox.isEmpty()) continue;
-    const b = worldBox;
-    corners[0].set(b.min.x, b.min.y, b.min.z);
-    corners[1].set(b.max.x, b.min.y, b.min.z);
-    corners[2].set(b.min.x, b.max.y, b.min.z);
-    corners[3].set(b.max.x, b.max.y, b.min.z);
-    corners[4].set(b.min.x, b.min.y, b.max.z);
-    corners[5].set(b.max.x, b.min.y, b.max.z);
-    corners[6].set(b.min.x, b.max.y, b.max.z);
-    corners[7].set(b.max.x, b.max.y, b.max.z);
+function _boxSelectIn(screenRect) {
+  _selectedCells = [];
+  _selectedCellSide = null;
+  const cells = getCells();
+  if (!cells.length) return;
+  const v = new THREE.Vector3();
+  const boxCx = (screenRect.x + screenRect.z) / 2;
+  for (const cell of cells) {
+    const cc = [
+      [cell.xL, cell.yB], [cell.xR, cell.yB],
+      [cell.xL, cell.yT], [cell.xR, cell.yT],
+    ];
     let hit = false;
-    for (const c of corners) {
-      c.project(camera);
-      const sx = (c.x * 0.5 + 0.5) * window.innerWidth;
-      const sy = (-c.y * 0.5 + 0.5) * window.innerHeight;
-      if (c.z <= 1 && sx >= screenRect.x && sx <= screenRect.z && sy >= screenRect.y && sy <= screenRect.w) {
+    for (const [px, py] of cc) {
+      v.set(px, py, 0).project(camera);
+      const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
+      const sy = (-v.y * 0.5 + 0.5) * window.innerHeight;
+      if (v.z <= 1 && sx >= screenRect.x && sx <= screenRect.z && sy >= screenRect.y && sy <= screenRect.w) {
         hit = true;
         break;
       }
     }
-    if (hit) {
-      if (!firstHit) firstHit = node;
-      if (node._outline) node._outline.visible = true;
-      _boxHighlighted.push(node);
-    }
+    if (!hit) continue;
+    _selectedCells.push(cell);
+    v.set(cell.cx, cell.cy, 0).project(camera);
+    const cellSx = (v.x * 0.5 + 0.5) * window.innerWidth;
+    _selectedCellSide = boxCx > cellSx ? 'right' : 'left';
   }
-  if (firstHit) {
-    selectedNode = firstHit;
-    renderProps();
-    attachTransform();
-    document.getElementById('hint').classList.add('hidden');
-  } else {
-    document.getElementById('hint').classList.remove('hidden');
-    attachTransform();
-  }
+  if (!_selectedCells.length) return;
+  document.querySelectorAll('.cellMarker').forEach(m => {
+    const inSel = _selectedCells.some(c => +m.dataset.cx === c.cx && +m.dataset.cy === c.cy);
+    m.classList.toggle('selected', inSel);
+    const activeHalf = inSel ? _selectedCellSide : null;
+    m.querySelectorAll('.half').forEach(h => h.classList.toggle('active', activeHalf && h.dataset.side === activeHalf));
+  });
+  _clearBoxHighlights();
 }
 
 const _boxSelect = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, el: null };
@@ -631,7 +620,7 @@ document.addEventListener('mouseup', (e) => {
   _selectedCells = [];
   _selectedCellSide = null;
   document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
-  _boxSelectNodeIn({
+  _boxSelectIn({
     x: Math.min(_boxSelect.startX, _boxSelect.endX),
     y: Math.min(_boxSelect.startY, _boxSelect.endY),
     z: Math.max(_boxSelect.startX, _boxSelect.endX),
