@@ -545,7 +545,7 @@ function _boxSelectNodeIn(screenRect) {
   for (let i = 0; i < 8; i++) corners.push(new THREE.Vector3());
   let firstHit = null;
   for (const node of nodeMap.values()) {
-    if (node._noMesh || !node.mesh) continue;
+    if (node._noMesh || node._isBodyPanel || !node.mesh) continue;
     worldBox.setFromObject(node.mesh);
     if (worldBox.isEmpty()) continue;
     const b = worldBox;
@@ -649,7 +649,7 @@ renderer.domElement.addEventListener('click', (e) => {
   pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
   const meshes = [];
-  for (const node of nodeMap.values()) { if (node.mesh) meshes.push(node.mesh); }
+  for (const node of nodeMap.values()) { if (node.mesh && !node._isBodyPanel) meshes.push(node.mesh); }
   const hits = raycaster.intersectObjects(meshes);
   const node = hits.length > 0 ? meshToNode.get(hits[0].object) : null;
   if (node) node.select();
