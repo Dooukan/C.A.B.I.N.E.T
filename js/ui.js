@@ -29,6 +29,13 @@ function renderTree() {
       if (item.name.includes('kapak')) item.toggleOpen();
       item.select();
     });
+    li.addEventListener('dblclick', () => {
+      const dist = Math.max(item.size.x, item.size.y, item.size.z) * 3 + 50;
+      const dir = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+      controls.target.set(item.position.x, item.position.y, item.position.z);
+      camera.position.copy(controls.target).add(dir.multiplyScalar(dist));
+      controls.update();
+    });
     list.appendChild(li);
   }
 }
