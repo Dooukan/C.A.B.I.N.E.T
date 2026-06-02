@@ -343,21 +343,39 @@ async function addElement(type) {
   } else if (type === 'cekmece') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
     if (!cells[0]) return;
-    const minX = Math.min(...cells.map(c => c.xL));
-    const maxX = Math.max(...cells.map(c => c.xR));
-    const gap = 1.5;
-    const drawerW = (maxX - minX) - gap * 2;
-    const cellH = cells[0].yT - cells[0].yB;
     pushSnapshot();
     for (let i = 0; i < num; i++) {
-      const drawerY = cells[0].yB + (i + 1) * cellH / (num + 1);
-      const node = new CabinetNode('çekmece', cabinet);
-      node.setSize(drawerW, d, 0.2);
-      node.setBaseRotation(90, 0, 0);
-      node.updatePos((minX + maxX) / 2, drawerY, 0);
-      node.color = '#795548';
-      node._drawerType = 1;
-      nodes.push(node);
+      const minX = Math.min(...cells.map(c => c.xL));
+      const maxX = Math.max(...cells.map(c => c.xR));
+      const cellH = cells[0].yT - cells[0].yB;
+      const cellYb = cells[0].yB;
+      const gap = 1.5;
+      const drawerW = (maxX - minX) - gap * 2;
+      const drawerD = d - t * 2;
+      const cx = (minX + maxX) / 2;
+      const cy = cellYb + (i + 1) * cellH / (num + 1);
+      const parent = new CabinetNode('çekmece', cabinet, true);
+      parent.position = { x: cx, y: cy, z: 0 };
+      parent.size = { x: drawerW, y: cellH, z: drawerD };
+      parent._drawerType = 1;
+      parent.group.position.set(cx, cy, 0);
+      const back = new CabinetNode('çekmece arkalığı', parent);
+      back.setSize(drawerW, cellH * 0.95, t);
+      back.updatePos(0, 0, -drawerD / 2 + t / 2);
+      back.color = '#795548';
+      const left = new CabinetNode('çekmece sol', parent);
+      left.setSize(t, cellH, drawerD);
+      left.updatePos(-drawerW / 2 + t / 2, 0, 0);
+      left.color = '#795548';
+      const right = new CabinetNode('çekmece sağ', parent);
+      right.setSize(t, cellH, drawerD);
+      right.updatePos(drawerW / 2 - t / 2, 0, 0);
+      right.color = '#795548';
+      const front = new CabinetNode('çekmece kapağı', parent);
+      front.setSize(drawerW, cellH, t);
+      front.updatePos(0, 0, drawerD / 2 - t / 2);
+      front.color = '#795548';
+      nodes.push(parent);
     }
   } else if (type === 'aski') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];

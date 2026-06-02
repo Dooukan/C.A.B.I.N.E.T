@@ -12,7 +12,7 @@ function renderTree() {
   const list = document.getElementById('treeList');
   list.innerHTML = '';
   if (!cabinet) return;
-  const allChildren = cabinet.children.filter(c => !c._noMesh);
+  const allChildren = cabinet.children.filter(c => !c._noMesh || c.name.includes('çekmece'));
   const counts = {};
   for (const item of allChildren) {
     const base = item.name.replace(/\s*\d+$/, '');
@@ -43,7 +43,7 @@ function renderTree() {
 function renderProps() {
   const panel = document.getElementById('props');
   const content = document.getElementById('propsContent');
-  if (!selectedNode || selectedNode._noMesh) { panel.classList.remove('show'); return; }
+  if (!selectedNode || (selectedNode._noMesh && !selectedNode.name.includes('çekmece'))) { panel.classList.remove('show'); return; }
   panel.classList.add('show');
   const n = selectedNode;
   const isDoor = n._hingeType !== null && n.name.includes('kapak');
@@ -151,6 +151,7 @@ function renderProps() {
     copy.color = n.color;
     copy._hingeType = n._hingeType;
     copy._hingeSide = n._hingeSide;
+    copy._drawerType = n._drawerType;
     copy.select();
     setActiveTool('move');
     renderProps();
