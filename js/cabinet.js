@@ -1,3 +1,4 @@
+// CabinetNode sinifi, hucre sistemi (buildCells/getCells/findCellAt)
 let nextNodeId = 1;
 const nodeMap = new Map();
 const meshToNode = new Map();

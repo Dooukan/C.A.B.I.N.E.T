@@ -1,3 +1,4 @@
+// Sahne kurulumu, createCabinet, addElement, event listeners, animate loop
 let cabinet = null;
 let selectedNode = null;
 let activeTool = 'select';
@@ -286,84 +287,101 @@ async function addElement(type) {
   if (!cabinet) return;
   const t = 1.8;
   const w = cabinet.size.x, h = cabinet.size.y, d = cabinet.size.z;
-  let node;
+  const count = parseInt(document.getElementById('multiCount').value) || 1;
+  const num = Math.max(1, count);
+  let nodes = [];
   if (type === 'raf') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
     if (!cells[0]) return;
-    const rafY = cells[0].cy;
-    const rafZ = 0;
     const minX = Math.min(...cells.map(c => c.xL));
     const maxX = Math.max(...cells.map(c => c.xR));
     const rafW = (maxX - minX) - 1.8;
+    const cellH = cells[0].yT - cells[0].yB;
     pushSnapshot();
-    node = new CabinetNode('raf', cabinet);
-    node.setSize(rafW, d, t);
-    node.setBaseRotation(90, 0, 0);
-    node.updatePos((minX + maxX) / 2, rafY, rafZ);
-    node.color = '#6d4c41';
-    node._splitScope = cells.map(c => ({ xL: c.xL, xR: c.xR, yB: c.yB, yT: c.yT }));
+    for (let i = 0; i < num; i++) {
+      const rafY = cells[0].yB + (i + 1) * cellH / (num + 1);
+      const node = new CabinetNode('raf', cabinet);
+      node.setSize(rafW, d, t);
+      node.setBaseRotation(90, 0, 0);
+      node.updatePos((minX + maxX) / 2, rafY, 0);
+      node.color = '#6d4c41';
+      node._splitScope = cells.map(c => ({ xL: c.xL, xR: c.xR, yB: c.yB, yT: c.yT }));
+      nodes.push(node);
+    }
   } else if (type === 'cekmece') {
     pushSnapshot();
-    node = new CabinetNode('çekmece', cabinet);
+    const node = new CabinetNode('çekmece', cabinet);
     node.setSize(w - 2 * t, 15, d);
     node.updatePos(0, t + 7.5, 0);
     node.color = '#795548';
+    nodes.push(node);
   } else if (type === 'aski') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
     if (!cells[0]) return;
     pushSnapshot();
-    node = new CabinetNode('askı çubuğu', cabinet);
     const minX = Math.min(...cells.map(c => c.xL));
     const maxX = Math.max(...cells.map(c => c.xR));
     const askiW = (maxX - minX) - 2;
     const askiY = cells[0].yT - 10;
     const askiZ = d / 2 - 5;
+    const node = new CabinetNode('askı çubuğu', cabinet);
     node.setSize(askiW, 1.5, 1.5);
     node.updatePos((minX + maxX) / 2, askiY, askiZ);
     node.color = '#9e9e9e';
+    nodes.push(node);
   } else if (type === 'dikme') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
     if (!cells[0]) return;
-    pushSnapshot();
-    node = new CabinetNode('dikme', cabinet);
     const minY = Math.min(...cells.map(c => c.yB));
     const maxY = Math.max(...cells.map(c => c.yT));
     const dikmeH = maxY - minY;
-    node.setSize(d, dikmeH, t);
-    node.setBaseRotation(0, 90, 0);
-    node.updatePos(cells[0].cx, (minY + maxY) / 2, 0);
-    node.color = '#5d4037';
-    node._splitScope = cells.map(c => ({ xL: c.xL, xR: c.xR, yB: c.yB, yT: c.yT }));
+    const cellW = cells[0].xR - cells[0].xL;
+    pushSnapshot();
+    for (let i = 0; i < num; i++) {
+      const dikmeX = cells[0].xL + (i + 1) * cellW / (num + 1);
+      const node = new CabinetNode('dikme', cabinet);
+      node.setSize(d, dikmeH, t);
+      node.setBaseRotation(0, 90, 0);
+      node.updatePos(dikmeX, (minY + maxY) / 2, 0);
+      node.color = '#5d4037';
+      node._splitScope = cells.map(c => ({ xL: c.xL, xR: c.xR, yB: c.yB, yT: c.yT }));
+      nodes.push(node);
+    }
   } else if (type === 'kapak-ic' || type === 'kapak-dis') {
     const cells = _selectedCells.length ? _selectedCells : getCells();
     if (!cells.length) return;
     pushSnapshot();
-    const gap = 0.2;
     const doorT = 1.8;
     const minX = Math.min(...cells.map(c => c.xL));
     const maxX = Math.max(...cells.map(c => c.xR));
     const minY = Math.min(...cells.map(c => c.yB));
     const maxY = Math.max(...cells.map(c => c.yT));
-    const doorW = type === 'kapak-dis' ? (maxX - minX) + 0.5 : (maxX - minX) - 0.6;
-    const doorH = type === 'kapak-dis' ? (maxY - minY) + 1.8 : (maxY - minY) - 0.6;
-    let doorX = (minX + maxX) / 2;
-    let doorY = (minY + maxY) / 2;
-    if (_selectedCellSide === 'left') doorX = minX + doorW / 2;
-    else if (_selectedCellSide === 'right') doorX = maxX - doorW / 2;
-    if (type === 'kapak-dis') {
-      doorX += _selectedCellSide === 'left' ? -0.9 : 0.9;
-      doorY += 0.9;
-    }
+    const cellW = maxX - minX;
+    const cellH = maxY - minY;
     const bodyD = cabinet._bodyDepth || d;
     const doorZ = type === 'kapak-dis' ? bodyD / 2 + doorT / 2 : bodyD / 2 - doorT / 2;
     const name = type === 'kapak-dis' ? 'dış kapak' : 'iç kapak';
-    node = new CabinetNode(name, cabinet);
-    node.setSize(doorW, doorH, doorT);
-    node.updatePos(doorX, (minY + maxY) / 2, doorZ);
-    node.color = '#8d6e63';
-    node._hingeType = '1';
-    node._hingeSide = _selectedCellSide === 'right' ? '2' : '1';
-    node._hingeOffset = 0.5;
+    for (let i = 0; i < num; i++) {
+      const partW = cellW / num;
+      const doorW = (type === 'kapak-dis' ? partW + 0.5 : partW - 0.6) - 1.2;
+      const doorH = type === 'kapak-dis' ? cellH + 1.8 : cellH - 0.6;
+      const partCenterX = minX + (i + 0.5) * partW;
+      let doorX = num === 1 && _selectedCellSide === 'left' ? minX + doorW / 2 : num === 1 && _selectedCellSide === 'right' ? maxX - doorW / 2 : partCenterX;
+      let doorY = (minY + maxY) / 2;
+      if (type === 'kapak-dis') {
+        if (num === 1 && _selectedCellSide === 'left') doorX -= 0.9;
+        else if (num === 1 && _selectedCellSide === 'right') doorX += 0.9;
+        doorY += 0.9;
+      }
+      const node = new CabinetNode(name, cabinet);
+      node.setSize(Math.max(0.1, doorW), doorH, doorT);
+      node.updatePos(doorX, doorY, doorZ);
+      node.color = '#8d6e63';
+      node._hingeType = '1';
+      node._hingeSide = i < num / 2 ? '1' : '2';
+      node._hingeOffset = 0.5;
+      nodes.push(node);
+    }
     _selectedCells = [];
     _selectedCellSide = null;
     document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
@@ -372,14 +390,16 @@ async function addElement(type) {
     renderDimensions();
     document.getElementById('hint').textContent = 'Bir panel seçmek için tıklayın';
     autoSave();
+    document.getElementById('multiCount').value = 1;
     return;
   }
-  if (node) {
+  if (nodes.length) {
     renderCellMarkers();
     renderTree();
     renderDimensions();
     document.getElementById('hint').textContent = 'Bir panel seçmek için tıklayın';
     autoSave();
+    document.getElementById('multiCount').value = 1;
   }
 }
 

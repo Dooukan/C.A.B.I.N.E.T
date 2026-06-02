@@ -1,3 +1,4 @@
+// Render fonksiyonlari (renderTree/renderProps/renderCellMarkers), dialog/panel
 let _selectedCells = [];
 let _selectedCellSide = null;
 let _cellMarkers = [];

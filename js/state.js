@@ -1,3 +1,4 @@
+// Kaydet/yukle, undo/redo, autoSave (exportState/importState/pushSnapshot)
 const _undoStack = [];
 const _redoStack = [];
 let _skipSnapshot = false;
