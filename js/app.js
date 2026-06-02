@@ -559,6 +559,7 @@ function _boxSelectIn(screenRect) {
   }
 }
 
+let _boxSelectionJustHappened = false;
 const _boxSelect = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, el: null };
 _boxSelect.el = document.createElement('div');
 _boxSelect.el.style.cssText = 'position:fixed;border:2px dashed #e67e22;background:rgba(230,126,34,0.08);pointer-events:none;z-index:100;display:none';
@@ -609,9 +610,11 @@ document.addEventListener('mouseup', (e) => {
     z: Math.max(_boxSelect.startX, _boxSelect.endX),
     w: Math.max(_boxSelect.startY, _boxSelect.endY),
   });
+  _boxSelectionJustHappened = true;
 });
 
 renderer.domElement.addEventListener('click', (e) => {
+  if (_boxSelectionJustHappened) { _boxSelectionJustHappened = false; return; }
   if (isTransforming) return;
   _clearBoxHighlights();
   _selectedCells = [];
