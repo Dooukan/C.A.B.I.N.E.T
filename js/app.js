@@ -476,7 +476,7 @@ document.addEventListener('keydown', async (e) => {
     if (calcPanel.classList.contains('show')) calcPanel.classList.remove('show');
     else if (document.getElementById('exportModal').classList.contains('show')) document.getElementById('exportModal').classList.remove('show');
     else if (document.getElementById('dialog').classList.contains('show')) closeDialog(null);
-    else if (selectedNode) selectedNode.deselect();
+    else if (selectedNode) { _clearBoxHighlights(); selectedNode.deselect(); }
     return;
   }
 
@@ -519,8 +519,119 @@ document.addEventListener('keydown', async (e) => {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
+let _boxHighlighted = [];
+
+function _clearBoxHighlights() {
+  for (const n of _boxHighlighted) {
+    if (n._outline) n._outline.visible = false;
+  }
+  _boxHighlighted = [];
+}
+
+function _boxSelectNodeIn(screenRect) {
+  _clearBoxHighlights();
+  if (selectedNode && selectedNode._outline) selectedNode._outline.visible = false;
+  selectedNode = null;
+  renderProps();
+  const worldBox = new THREE.Box3();
+  const corners = [];
+  for (let i = 0; i < 8; i++) corners.push(new THREE.Vector3());
+  let firstHit = null;
+  for (const node of nodeMap.values()) {
+    if (node._noMesh || !node.mesh) continue;
+    worldBox.setFromObject(node.mesh);
+    if (worldBox.isEmpty()) continue;
+    const b = worldBox;
+    corners[0].set(b.min.x, b.min.y, b.min.z);
+    corners[1].set(b.max.x, b.min.y, b.min.z);
+    corners[2].set(b.min.x, b.max.y, b.min.z);
+    corners[3].set(b.max.x, b.max.y, b.min.z);
+    corners[4].set(b.min.x, b.min.y, b.max.z);
+    corners[5].set(b.max.x, b.min.y, b.max.z);
+    corners[6].set(b.min.x, b.max.y, b.max.z);
+    corners[7].set(b.max.x, b.max.y, b.max.z);
+    let hit = false;
+    for (const c of corners) {
+      c.project(camera);
+      const sx = (c.x * 0.5 + 0.5) * window.innerWidth;
+      const sy = (-c.y * 0.5 + 0.5) * window.innerHeight;
+      if (c.z <= 1 && sx >= screenRect.x && sx <= screenRect.z && sy >= screenRect.y && sy <= screenRect.w) {
+        hit = true;
+        break;
+      }
+    }
+    if (hit) {
+      if (!firstHit) firstHit = node;
+      if (node._outline) node._outline.visible = true;
+      _boxHighlighted.push(node);
+    }
+  }
+  if (firstHit) {
+    selectedNode = firstHit;
+    renderProps();
+    attachTransform();
+    document.getElementById('hint').classList.add('hidden');
+  } else {
+    document.getElementById('hint').classList.remove('hidden');
+    attachTransform();
+  }
+}
+
+const _boxSelect = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, el: null };
+_boxSelect.el = document.createElement('div');
+_boxSelect.el.style.cssText = 'position:fixed;border:2px dashed #e67e22;background:rgba(230,126,34,0.08);pointer-events:none;z-index:100;display:none';
+document.body.appendChild(_boxSelect.el);
+
+renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+renderer.domElement.addEventListener('mousedown', (e) => {
+  if (e.button !== 2 || activeTool !== 'select' || isTransforming) return;
+  _boxSelect.active = true;
+  _boxSelect.startX = _boxSelect.endX = e.clientX;
+  _boxSelect.startY = _boxSelect.endY = e.clientY;
+  _boxSelect.el.style.display = '';
+  _boxSelect.el.style.left = e.clientX + 'px';
+  _boxSelect.el.style.top = e.clientY + 'px';
+  _boxSelect.el.style.width = '0px';
+  _boxSelect.el.style.height = '0px';
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!_boxSelect.active) return;
+  _boxSelect.endX = e.clientX;
+  _boxSelect.endY = e.clientY;
+  const x = Math.min(_boxSelect.startX, _boxSelect.endX);
+  const y = Math.min(_boxSelect.startY, _boxSelect.endY);
+  const w = Math.abs(_boxSelect.endX - _boxSelect.startX);
+  const h = Math.abs(_boxSelect.endY - _boxSelect.startY);
+  _boxSelect.el.style.left = x + 'px';
+  _boxSelect.el.style.top = y + 'px';
+  _boxSelect.el.style.width = w + 'px';
+  _boxSelect.el.style.height = h + 'px';
+});
+
+document.addEventListener('mouseup', (e) => {
+  if (!_boxSelect.active) return;
+  _boxSelect.active = false;
+  _boxSelect.el.style.display = 'none';
+  if (e.button !== 2) return;
+  const dx = Math.abs(_boxSelect.endX - _boxSelect.startX);
+  const dy = Math.abs(_boxSelect.endY - _boxSelect.startY);
+  if (dx < 5 && dy < 5) return;
+  _selectedCells = [];
+  _selectedCellSide = null;
+  document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
+  _boxSelectNodeIn({
+    x: Math.min(_boxSelect.startX, _boxSelect.endX),
+    y: Math.min(_boxSelect.startY, _boxSelect.endY),
+    z: Math.max(_boxSelect.startX, _boxSelect.endX),
+    w: Math.max(_boxSelect.startY, _boxSelect.endY),
+  });
+});
+
 renderer.domElement.addEventListener('click', (e) => {
   if (isTransforming) return;
+  _clearBoxHighlights();
   _selectedCells = [];
   _selectedCellSide = null;
   document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
