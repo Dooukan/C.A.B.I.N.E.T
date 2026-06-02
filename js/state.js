@@ -79,6 +79,7 @@ function exportState() {
       _noMesh: !!n._noMesh,
       _bodyDepth: n._bodyDepth,
       _outerDoorThickness: n._outerDoorThickness,
+      _drawerType: n._drawerType || null,
     });
     for (const child of n.children) walk(child, idx);
   }
@@ -109,6 +110,7 @@ function importState(data) {
     node._splitScope = nd._splitScope;
     node._bodyDepth = nd._bodyDepth;
     node._outerDoorThickness = nd._outerDoorThickness;
+    node._drawerType = nd._drawerType || null;
     if (!nd._noMesh) node.buildMesh();
     node._applyRotation();
     node.updatePos(nd.position.x, nd.position.y, nd.position.z);

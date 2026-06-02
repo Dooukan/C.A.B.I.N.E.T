@@ -47,6 +47,7 @@ function renderProps() {
   panel.classList.add('show');
   const n = selectedNode;
   const isDoor = n._hingeType !== null && n.name.includes('kapak');
+  const isDrawer = n.name.includes('çekmece') && n._drawerType;
   let hingeInfoHTML = '';
   if (isDoor) {
     hingeInfoHTML = `
@@ -57,12 +58,21 @@ function renderProps() {
       <div class="field"><label>${__('props.hingeDir')}</label><select id="hSide"><option value="1" ${n._hingeSide === '1' ? 'selected' : ''}>${__('props.hingeLeft')}</option><option value="2" ${n._hingeSide === '2' ? 'selected' : ''}>${__('props.hingeRight')}</option></select></div>
     </div>`;
   }
+  let drawerInfoHTML = '';
+  if (isDrawer) {
+    drawerInfoHTML = `
+    <div class="section">
+      <div class="section-title">${__('props.drawerType')}</div>
+      <div class="field"><label>${__('props.hingeType')}</label><select id="drawerType"><option value="1" ${n._drawerType === 1 ? 'selected' : ''}>${__('props.drawerType1')}</option><option value="2" ${n._drawerType === 2 ? 'selected' : ''}>${__('props.drawerType2')}</option></select></div>
+    </div>`;
+  }
   content.innerHTML = `
     <div class="section">
       <div class="section-title">${__('props.general')}</div>
       <div class="field"><label>${__('props.name')}</label><input id="pName" value="${n.name}"></div>
     </div>
     ${hingeInfoHTML}
+    ${drawerInfoHTML}
     <div class="section">
       <div class="section-title">${__('props.position')}</div>
       <div class="row">
@@ -120,6 +130,13 @@ function renderProps() {
       if (newType === n._hingeType) return;
       n._hingeType = newType;
       updateDoorSize(n);
+      renderProps();
+      autoSave();
+    });
+  }
+  if (isDrawer) {
+    document.getElementById('drawerType').addEventListener('change', (e) => {
+      n._drawerType = +e.target.value;
       renderProps();
       autoSave();
     });

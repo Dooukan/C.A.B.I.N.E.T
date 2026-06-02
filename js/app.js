@@ -179,7 +179,7 @@ function updateChildSizes() {
   const cells = getCells();
   for (const node of cabinet.children) {
     if (node.name.includes('kapak')) continue;
-    if (node.name.includes('dikme') || node.name.includes('raf')) continue;
+    if (node.name.includes('dikme') || node.name.includes('raf') || node.name.includes('çekmece')) continue;
     if (node._noMesh) continue;
     const nxL = node.position.x - node.size.x / 2;
     const nxR = node.position.x + node.size.x / 2;
@@ -341,12 +341,24 @@ async function addElement(type) {
       nodes.push(node);
     }
   } else if (type === 'cekmece') {
+    const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
+    if (!cells[0]) return;
+    const minX = Math.min(...cells.map(c => c.xL));
+    const maxX = Math.max(...cells.map(c => c.xR));
+    const gap = 1.5;
+    const drawerW = (maxX - minX) - gap * 2;
+    const cellH = cells[0].yT - cells[0].yB;
     pushSnapshot();
-    const node = new CabinetNode('çekmece', cabinet);
-    node.setSize(w - 2 * t, 15, d);
-    node.updatePos(0, t + 7.5, 0);
-    node.color = '#795548';
-    nodes.push(node);
+    for (let i = 0; i < num; i++) {
+      const drawerY = cells[0].yB + (i + 1) * cellH / (num + 1);
+      const node = new CabinetNode('çekmece', cabinet);
+      node.setSize(drawerW, d, t);
+      node.setBaseRotation(90, 0, 0);
+      node.updatePos((minX + maxX) / 2, drawerY, 0);
+      node.color = '#795548';
+      node._drawerType = 1;
+      nodes.push(node);
+    }
   } else if (type === 'aski') {
     const cells = _selectedCells.length ? _selectedCells : [findCellAt(selectedNode ? selectedNode.position.x : 0, selectedNode ? selectedNode.position.y : h / 2)];
     if (!cells[0]) return;
