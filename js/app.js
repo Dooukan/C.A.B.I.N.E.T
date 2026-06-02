@@ -375,6 +375,10 @@ async function addElement(type) {
       front.setSize(drawerW, cellH, t);
       front.updatePos(0, 0, drawerD / 2 - t / 2);
       front.color = '#795548';
+      const bottom = new CabinetNode('çekmece taban', parent);
+      bottom.setSize(drawerW - t * 2, t, drawerD - t * 2);
+      bottom.updatePos(0, -cellH / 2 + t / 2, 0);
+      bottom.color = '#795548';
       nodes.push(parent);
     }
   } else if (type === 'aski') {
