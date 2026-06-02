@@ -3,6 +3,36 @@ let cabinet = null;
 let selectedNode = null;
 let activeTool = 'select';
 
+const defaultShortcuts = {
+  undo: { ctrl: true, key: 'z' },
+  redo: { ctrl: true, key: 'y' },
+  copy: { ctrl: true, key: 'c' },
+  export: { ctrl: true, key: 'e' },
+  newProject: { ctrl: true, key: 'n' },
+  delete: { ctrl: false, key: 'Delete' },
+  rename: { ctrl: false, key: 'F2' },
+  selectTool: { ctrl: false, key: 'v' },
+  moveTool: { ctrl: false, key: 'g' },
+};
+
+let shortcuts = {};
+try {
+  const saved = localStorage.getItem('cabinShortcuts');
+  shortcuts = saved ? { ...defaultShortcuts, ...JSON.parse(saved) } : { ...defaultShortcuts };
+} catch { shortcuts = { ...defaultShortcuts }; }
+
+function saveShortcuts() {
+  localStorage.setItem('cabinShortcuts', JSON.stringify(shortcuts));
+}
+
+function matchShortcut(e, name) {
+  const s = shortcuts[name];
+  if (!s) return false;
+  if (s.ctrl && !e.ctrlKey) return false;
+  if (!s.ctrl && e.ctrlKey) return false;
+  return e.key === s.key;
+}
+
 const canvas = document.getElementById('canvas');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -388,7 +418,7 @@ async function addElement(type) {
     renderCellMarkers();
     renderTree();
     renderDimensions();
-    document.getElementById('hint').textContent = 'Bir panel seçmek için tıklayın';
+    document.getElementById('hint').textContent = __('app.hint');
     autoSave();
     document.getElementById('multiCount').value = 1;
     return;
@@ -397,7 +427,7 @@ async function addElement(type) {
     renderCellMarkers();
     renderTree();
     renderDimensions();
-    document.getElementById('hint').textContent = 'Bir panel seçmek için tıklayın';
+    document.getElementById('hint').textContent = __('app.hint');
     autoSave();
     document.getElementById('multiCount').value = 1;
   }
@@ -414,6 +444,60 @@ document.getElementById('btnNew').addEventListener('click', () => {
 });
 document.getElementById('btnSave').addEventListener('click', saveToFile);
 document.getElementById('btnLoad').addEventListener('click', loadFromFile);
+document.getElementById('btnSettings').addEventListener('click', () => {
+  document.getElementById('settingsModal').classList.toggle('show');
+  renderShortcutList();
+});
+document.getElementById('settingsClose').addEventListener('click', () => document.getElementById('settingsModal').classList.remove('show'));
+document.getElementById('settingsModal').addEventListener('click', (e) => { if (e.target.id === 'settingsModal') e.target.classList.remove('show'); });
+document.getElementById('langSelect').addEventListener('change', (e) => setLanguage(e.target.value));
+
+let _editingShortcut = null;
+
+function renderShortcutList() {
+  const list = document.getElementById('shortcutList');
+  list.innerHTML = '';
+  const labels = {
+    undo: __('shortcut.undo'), redo: __('shortcut.redo'), copy: __('shortcut.copy'),
+    export: __('shortcut.export'), newProject: __('shortcut.new'), delete: __('shortcut.delete'),
+    rename: __('shortcut.rename'), selectTool: __('shortcut.selectTool'), moveTool: __('shortcut.moveTool'),
+  };
+  for (const [name, label] of Object.entries(labels)) {
+    const s = shortcuts[name];
+    if (!s) continue;
+    const row = document.createElement('div');
+    row.className = 'shortcut-row';
+    const keyLabel = (s.ctrl ? 'Ctrl+' : '') + s.key;
+    row.innerHTML = `<span class="shortcut-label">${label}</span><span class="shortcut-key ${_editingShortcut === name ? 'editing' : ''}" data-shortcut="${name}">${_editingShortcut === name ? __('settings.clickToChange') : keyLabel}</span>`;
+    row.querySelector('.shortcut-key').addEventListener('click', () => startShortcutEdit(name));
+    list.appendChild(row);
+  }
+}
+
+function startShortcutEdit(name) {
+  _editingShortcut = name;
+  renderShortcutList();
+  const handler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const ctrl = e.ctrlKey || e.metaKey;
+    const key = e.key === 'Control' || e.key === 'Meta' ? null : e.key;
+    if (!key) return;
+    shortcuts[name] = { ctrl, key: key.length === 1 ? key.toLowerCase() : key };
+    saveShortcuts();
+    _editingShortcut = null;
+    renderShortcutList();
+    showToast(__('toast.settingsSaved'));
+    document.removeEventListener('keydown', handler);
+  };
+  document.addEventListener('keydown', handler);
+}
+
+document.addEventListener('languageChanged', () => {
+  renderShortcutList();
+  const h = document.getElementById('hint');
+  if (h && !h.classList.contains('hidden')) h.textContent = __('app.hint');
+});
 document.getElementById('mCreate').addEventListener('click', () => {
   const w = +document.getElementById('mW').value;
   const h = +document.getElementById('mH').value;
@@ -487,12 +571,12 @@ document.addEventListener('keydown', async (e) => {
     return;
   }
 
-  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
-  if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); return; }
-  if (e.ctrlKey && e.key === 'c') {
+  if (matchShortcut(e, 'undo')) { e.preventDefault(); undo(); return; }
+  if (matchShortcut(e, 'redo')) { e.preventDefault(); redo(); return; }
+  if (matchShortcut(e, 'copy')) {
     if (!selectedNode || selectedNode._noMesh) return;
     e.preventDefault();
-    const copy = new CabinetNode(selectedNode.name + ' (kopya)', selectedNode.parent);
+    const copy = new CabinetNode(selectedNode.name + __('app.copySuffix'), selectedNode.parent);
     copy.setSize(selectedNode.size.x, selectedNode.size.y, selectedNode.size.z);
     copy.setBaseRotation(selectedNode._baseRotation.x, selectedNode._baseRotation.y, selectedNode._baseRotation.z);
     copy.setRotation(selectedNode.rotation.x, selectedNode.rotation.y, selectedNode.rotation.z);
@@ -506,21 +590,21 @@ document.addEventListener('keydown', async (e) => {
     renderCellMarkers();
     renderTree();
     renderDimensions();
-    showToast('Kopyalandı');
+    showToast(__('toast.copied'));
     autoSave();
     return;
   }
-  if (e.ctrlKey && e.key === 'e') { e.preventDefault(); showExport(); return; }
-  if (e.ctrlKey && e.key === 'n') { e.preventDefault(); document.getElementById('welcome').classList.remove('hidden'); return; }
+  if (matchShortcut(e, 'export')) { e.preventDefault(); showExport(); return; }
+  if (matchShortcut(e, 'newProject')) { e.preventDefault(); document.getElementById('welcome').classList.remove('hidden'); return; }
 
-  if (e.key === 'Delete' && !isInput && selectedNode) { removeNode(selectedNode); showToast('Silindi'); autoSave(); return; }
-  if (e.key === 'F2' && !isInput && selectedNode && !selectedNode._noMesh) {
+  if (matchShortcut(e, 'delete') && !isInput && selectedNode) { removeNode(selectedNode); showToast(__('toast.deleted')); autoSave(); return; }
+  if (matchShortcut(e, 'rename') && !isInput && selectedNode && !selectedNode._noMesh) {
     e.preventDefault();
-    const newName = await showDialog('Yeni Ad', 'Ad girin', selectedNode.name);
+    const newName = await showDialog(__('dialog.renameTitle'), __('dialog.renamePlaceholder'), selectedNode.name);
     if (newName && newName.trim()) { selectedNode.name = newName.trim(); renderProps(); autoSave(); }
   }
-  if (e.key === 'v' && !isInput) setActiveTool('select');
-  if (e.key === 'g' && !isInput) setActiveTool('move');
+  if (matchShortcut(e, 'selectTool') && !isInput) setActiveTool('select');
+  if (matchShortcut(e, 'moveTool') && !isInput) setActiveTool('move');
 });
 
 const raycaster = new THREE.Raycaster();
@@ -670,3 +754,4 @@ function animate() {
 animate();
 
 if (!autoRestore()) document.getElementById('welcome').classList.remove('hidden');
+setLanguage(savedLang);

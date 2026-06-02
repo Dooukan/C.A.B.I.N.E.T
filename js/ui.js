@@ -44,20 +44,20 @@ function renderProps() {
   if (isDoor) {
     hingeInfoHTML = `
     <div class="section">
-      <div class="section-title">Menteşe Bilgisi</div>
-      <div class="field"><label>Tip</label><select id="hType"><option value="1" ${n._hingeType === '1' ? 'selected' : ''}>Düz (Tam Bini)</option><option value="2" ${n._hingeType === '2' ? 'selected' : ''}>Yarım Deve (Yarım Bini)</option><option value="3" ${n._hingeType === '3' ? 'selected' : ''}>Süper Deve (Gömme)</option></select></div>
-      <div class="field"><label>Genişlik Ofseti (cm)</label><input type="number" step="0.1" id="hOffset" value="${n._hingeOffset || 0}"></div>
-      <div class="field"><label>Yön</label><select id="hSide"><option value="1" ${n._hingeSide === '1' ? 'selected' : ''}>Sol</option><option value="2" ${n._hingeSide === '2' ? 'selected' : ''}>Sağ</option></select></div>
+      <div class="section-title">${__('props.hingeInfo')}</div>
+      <div class="field"><label>${__('props.hingeType')}</label><select id="hType"><option value="1" ${n._hingeType === '1' ? 'selected' : ''}>${__('props.hingeFlat')}</option><option value="2" ${n._hingeType === '2' ? 'selected' : ''}>${__('props.hingeHalf')}</option><option value="3" ${n._hingeType === '3' ? 'selected' : ''}>${__('props.hingeSuper')}</option></select></div>
+      <div class="field"><label>${__('props.hingeOffset')}</label><input type="number" step="0.1" id="hOffset" value="${n._hingeOffset || 0}"></div>
+      <div class="field"><label>${__('props.hingeDir')}</label><select id="hSide"><option value="1" ${n._hingeSide === '1' ? 'selected' : ''}>${__('props.hingeLeft')}</option><option value="2" ${n._hingeSide === '2' ? 'selected' : ''}>${__('props.hingeRight')}</option></select></div>
     </div>`;
   }
   content.innerHTML = `
     <div class="section">
-      <div class="section-title">Genel</div>
-      <div class="field"><label>Ad</label><input id="pName" value="${n.name}"></div>
+      <div class="section-title">${__('props.general')}</div>
+      <div class="field"><label>${__('props.name')}</label><input id="pName" value="${n.name}"></div>
     </div>
     ${hingeInfoHTML}
     <div class="section">
-      <div class="section-title">Konum</div>
+      <div class="section-title">${__('props.position')}</div>
       <div class="row">
         <div class="field"><label>X</label><input type="number" step="0.1" id="pX" value="${n.position.x.toFixed(1)}"></div>
         <div class="field"><label>Y</label><input type="number" step="0.1" id="pY" value="${n.position.y.toFixed(1)}"></div>
@@ -65,29 +65,29 @@ function renderProps() {
       </div>
     </div>
     <div class="section">
-      <div class="section-title">Boyut (cm)</div>
+      <div class="section-title">${__('props.size')}</div>
       <div class="row">
-        <div class="field"><label>G</label><input type="number" step="0.1" id="pW" value="${n.size.x.toFixed(1)}"></div>
-        <div class="field"><label>Y</label><input type="number" step="0.1" id="pH" value="${n.size.y.toFixed(1)}"></div>
-        <div class="field"><label>K</label><input type="number" step="0.1" id="pD" value="${n.size.z.toFixed(1)}"></div>
+        <div class="field"><label>${__('props.dimW')}</label><input type="number" step="0.1" id="pW" value="${n.size.x.toFixed(1)}"></div>
+        <div class="field"><label>${__('props.dimH')}</label><input type="number" step="0.1" id="pH" value="${n.size.y.toFixed(1)}"></div>
+        <div class="field"><label>${__('props.dimD')}</label><input type="number" step="0.1" id="pD" value="${n.size.z.toFixed(1)}"></div>
       </div>
     </div>
     <div class="section">
-      <div class="section-title">Döndürme (°)</div>
+      <div class="section-title">${__('props.rotation')}</div>
       <div class="row">
-        <div class="field"><label>G</label><input type="number" step="1" id="rX" value="${n.rotation.x}"></div>
-        <div class="field"><label>Y</label><input type="number" step="1" id="rY" value="${n.rotation.y}"></div>
-        <div class="field"><label>K</label><input type="number" step="1" id="rZ" value="${n.rotation.z}"></div>
+        <div class="field"><label>${__('props.dimW')}</label><input type="number" step="1" id="rX" value="${n.rotation.x}"></div>
+        <div class="field"><label>${__('props.dimH')}</label><input type="number" step="1" id="rY" value="${n.rotation.y}"></div>
+        <div class="field"><label>${__('props.dimD')}</label><input type="number" step="1" id="rZ" value="${n.rotation.z}"></div>
       </div>
     </div>
     <div class="section">
-      <div class="section-title">Renk</div>
+      <div class="section-title">${__('props.color')}</div>
       <div class="field"><input type="color" id="pColor" value="${n.color}"></div>
     </div>
     <div class="actions">
-      <button id="pCopy">📋 Kopyala</button>
-      <button id="pRename">✏️ Adlandır</button>
-      <button id="pDelete">🗑 Sil</button>
+      <button id="pCopy">📋 ${__('btn.copy')}</button>
+      <button id="pRename">✏️ ${__('btn.rename')}</button>
+      <button id="pDelete">🗑 ${__('btn.delete')}</button>
     </div>
   `;
   document.getElementById('pName').addEventListener('input', (e) => { n.name = e.target.value; autoSave(); });
@@ -131,13 +131,13 @@ function renderProps() {
     setActiveTool('move');
     renderProps();
     renderCellMarkers();
-    showToast('Kopyalandı');
+    showToast(__('toast.copied'));
   });
   document.getElementById('pRename').addEventListener('click', async () => {
-    const newName = await showDialog('Yeni Ad', 'Ad girin', n.name);
+    const newName = await showDialog(__('dialog.renameTitle'), __('dialog.renamePlaceholder'), n.name);
     if (newName && newName.trim()) { n.name = newName.trim(); renderProps(); autoSave(); }
   });
-  document.getElementById('pDelete').addEventListener('click', () => { removeNode(n); showToast('Silindi'); autoSave(); });
+  document.getElementById('pDelete').addEventListener('click', () => { removeNode(n); showToast(__('toast.deleted')); autoSave(); });
 }
 
 function renderCellMarkers() {
@@ -251,21 +251,21 @@ function buildExportData() {
 function showExport() {
   buildExportData();
   const total = _exportData.reduce((s, d) => s + d.count, 0);
-  let html = `<table><tr><th>Parça</th><th>Boy (mm)</th><th>En (mm)</th><th>Adet</th></tr>`;
+  let html = `<table><tr><th>${__('export.colPart')}</th><th>${__('export.colLength')}</th><th>${__('export.colWidth')}</th><th>${__('export.colQty')}</th></tr>`;
   for (const d of _exportData) {
     html += `<tr><td>${d.name}</td><td>${d.w}</td><td>${d.h}</td><td>${d.count}</td></tr>`;
   }
-  html += `</table><div class="total">Toplam Parça: ${total}</div>`;
+  html += `</table><div class="total">${__('export.total', total)}</div>`;
   document.getElementById('exportTable').innerHTML = html;
   document.getElementById('exportModal').classList.add('show');
 }
 
 function downloadCsv() {
   buildExportData();
-  let csv = 'Parça,Boy (mm),En (mm),Adet\n';
+  let csv = `${__('export.colPart')},${__('export.colLength')},${__('export.colWidth')},${__('export.colQty')}\n`;
   for (const d of _exportData) csv += `${d.name},${d.w},${d.h},${d.count}\n`;
   const total = _exportData.reduce((s, d) => s + d.count, 0);
-  csv += `\nToplam Parça,${total}`;
+  csv += `\n${__('export.total', total)}`;
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -290,7 +290,7 @@ document.getElementById('calcGrid').addEventListener('click', (e) => {
   if (v === '⌫') { _calcExpr = _calcExpr.slice(0, -1); calcDisplay.value = _calcExpr; return; }
   if (v === '=') {
     try { calcDisplay.value = Function('"use strict";return (' + _calcExpr + ')')(); _calcExpr = String(calcDisplay.value); }
-    catch { calcDisplay.value = 'Hata'; _calcExpr = ''; }
+    catch { calcDisplay.value = __('calc.error'); _calcExpr = ''; }
     return;
   }
   _calcExpr += v;

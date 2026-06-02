@@ -22,7 +22,7 @@ function undo() {
   _skipSnapshot = true;
   importState(prev);
   _skipSnapshot = false;
-  showToast('Geri alındı');
+  showToast(__('toast.undo'));
 }
 
 function redo() {
@@ -32,7 +32,7 @@ function redo() {
   _skipSnapshot = true;
   importState(next);
   _skipSnapshot = false;
-  showToast('İleri alındı');
+  showToast(__('toast.redo'));
 }
 
 function clearScene() {
@@ -51,6 +51,8 @@ function clearScene() {
   meshToNode.clear();
   nextNodeId = 1;
 }
+
+let _saveVersion = Date.now();
 
 function exportState() {
   if (!cabinet) return null;
@@ -81,7 +83,8 @@ function exportState() {
     for (const child of n.children) walk(child, idx);
   }
   walk(cabinet, -1);
-  return { cabinetIndex: 0, nodes };
+  _saveVersion = Date.now();
+  return { cabinetIndex: 0, nodes, _saveVersion };
 }
 
 function importState(data) {
@@ -112,6 +115,7 @@ function importState(data) {
     created.push(node);
   }
   cabinet = created[data.cabinetIndex || 0];
+  _saveVersion = data._saveVersion || Date.now();
   controls.target.set(0, cabinet.size.y / 2, 0);
   controls.update();
   renderTree();
@@ -123,14 +127,14 @@ function importState(data) {
 
 function saveToFile() {
   const state = exportState();
-  if (!state) { showToast('Kaydedilecek proje yok'); return; }
+  if (!state) { showToast(__('toast.noProject')); return; }
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'cabin-design.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast('Proje kaydedildi');
+  showToast(__('toast.saved'));
 }
 
 function loadFromFile() {
@@ -145,8 +149,8 @@ function loadFromFile() {
       try {
         const data = JSON.parse(ev.target.result);
         importState(data);
-        showToast('Proje yüklendi');
-      } catch { showToast('Geçersiz dosya'); }
+        showToast(__('toast.loaded'));
+      } catch { showToast(__('toast.invalid')); }
     };
     reader.readAsText(file);
   });
@@ -156,6 +160,15 @@ function loadFromFile() {
 function autoSave() {
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(() => {
+    const raw = localStorage.getItem('magicCabin');
+    if (raw) {
+      try {
+        const existing = JSON.parse(raw);
+        if (existing._saveVersion && existing._saveVersion !== _saveVersion) {
+          showToast(__('toast.conflict'));
+        }
+      } catch {}
+    }
     const state = exportState();
     if (state) localStorage.setItem('magicCabin', JSON.stringify(state));
   }, 500);

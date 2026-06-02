@@ -106,3 +106,21 @@ body{font-family:'Segoe UI',sans-serif;background:#1a1a2e;overflow:hidden;height
 .cellMarker.selected .half:last-child{border-left-color:#fff}
 .cellMarker.selected .half.active:first-child{border-right-color:#e67e22}
 .cellMarker.selected .half.active:last-child{border-left-color:#e67e22}
+
+#settingsModal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:300}
+#settingsModal.show{display:flex}
+#settingsBox{background:#1e1e3a;border:1px solid #444;border-radius:12px;padding:24px 28px;min-width:400px;max-width:90vw;max-height:80vh;overflow-y:auto}
+#settingsBox h3{color:#fff;margin-bottom:16px;font-size:16px}
+#settingsBox .section{margin-bottom:16px}
+#settingsBox .section-title{color:rgba(255,255,255,0.3);font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+#settingsBox select{width:100%;background:#1a1a3a;border:1px solid #333;border-radius:8px;padding:8px 10px;color:#ddd;font-size:13px;outline:none}
+#settingsBox select:focus{border-color:#e67e22}
+#settingsBox .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+#settingsBox .btns button{padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+#settingsBox .btns .ok{background:#e67e22;color:#fff}
+.shortcut-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.shortcut-label{color:#ddd;font-size:13px}
+.shortcut-key{background:#2a2a4a;border:1px solid #555;border-radius:6px;padding:4px 12px;color:#e67e22;font-size:12px;cursor:pointer;font-family:'Courier New',monospace;transition:.15s;min-width:80px;text-align:center}
+.shortcut-key:hover{border-color:#e67e22}
+.shortcut-key.editing{background:#e67e22;color:#fff;border-color:#e67e22;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}

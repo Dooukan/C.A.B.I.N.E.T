@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magic Node Cabin Design</title>
+<title data-i18n="app.title">Magic Node Cabin Design</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,24 +11,24 @@
 
 <div id="welcome">
   <div id="welcomeBox">
-    <h2>Magic Node Cabin Design</h2>
-    <p>Dolap boyutlarını girin</p>
-    <div class="field"><label>Genişlik (cm)</label><input type="number" id="mW" value="200"></div>
-    <div class="field"><label>Yükseklik (cm)</label><input type="number" id="mH" value="240"></div>
-    <div class="field"><label>Derinlik (cm)</label><input type="number" id="mD" value="60"></div>
-    <div class="btns"><button class="ok" id="mCreate">Oluştur</button></div>
+    <h2 data-i18n="app.title">Magic Node Cabin Design</h2>
+    <p data-i18n="app.enterDim">Dolap boyutlarını girin</p>
+    <div class="field"><label data-i18n="app.width">Genişlik (cm)</label><input type="number" id="mW" value="200"></div>
+    <div class="field"><label data-i18n="app.height">Yükseklik (cm)</label><input type="number" id="mH" value="240"></div>
+    <div class="field"><label data-i18n="app.depth">Derinlik (cm)</label><input type="number" id="mD" value="60"></div>
+    <div class="btns"><button class="ok" id="mCreate" data-i18n="app.create">Oluştur</button></div>
   </div>
 </div>
 
-<div id="hint">Bir panel seçmek için tıklayın</div>
+<div id="hint" data-i18n="app.hint">Bir panel seçmek için tıklayın</div>
 
 <div id="dialog">
   <div id="dialogBox">
     <h3 id="dialogTitle"></h3>
     <input type="text" id="dialogInput">
     <div class="btns">
-      <button class="cancel" id="dialogCancel">İptal</button>
-      <button class="ok" id="dialogOk">Tamam</button>
+      <button class="cancel" id="dialogCancel" data-i18n="app.cancel">İptal</button>
+      <button class="ok" id="dialogOk" data-i18n="app.ok">Tamam</button>
     </div>
   </div>
 </div>
@@ -36,7 +36,7 @@
 <div id="toast"></div>
 
 <div id="calcPanel">
-  <div id="calcHeader">HESAP MAKİNESİ</div>
+  <div id="calcHeader" data-i18n="calc.title">HESAP MAKİNESİ</div>
   <input type="text" id="calcDisplay" readonly>
   <div id="calcGrid">
     <button class="clear" data-v="C">C</button>
@@ -64,48 +64,70 @@
 
 <div id="exportModal">
   <div id="exportBox">
-    <h3>Parça Listesi</h3>
+    <h3 data-i18n="export.title">Parça Listesi</h3>
     <div id="exportTable" style="overflow-y:auto;flex:1"></div>
-    <div class="btns">
-      <button class="cancel" id="exportClose">Kapat</button>
-      <button class="ok" id="exportCsv">📥 CSV İndir</button>
+  <div class="btns">
+      <button class="cancel" id="exportClose" data-i18n="export.close">Kapat</button>
+      <button class="ok" id="exportCsv" data-i18n="export.csv">📥 CSV İndir</button>
     </div>
   </div>
 </div>
 
-<div id="topbar">
-  <input type="number" id="multiCount" value="1" min="1" max="50" title="Çoklu sayı (1=tek)">
-  <button data-type="raf"><span>▬</span> Raf</button>
-  <button data-type="cekmece"><span>🗄</span> Çekmece</button>
-  <button data-type="aski"><span>〰</span> Askı</button>
-  <button data-type="dikme"><span>▮</span> Dikme</button>
-  <div class="sep"></div>
-  <button data-type="kapak-ic"><span>🚪</span> İç Kapak</button>
-  <button data-type="kapak-dis"><span>🚪</span> Dış Kapak</button>
+<div id="settingsModal">
+  <div id="settingsBox">
+    <h3 data-i18n="settings.title">Ayarlar</h3>
+    <div class="section">
+      <div class="section-title" data-i18n="settings.language">Dil</div>
+      <select id="langSelect"><option value="tr">Türkçe</option><option value="en">English</option></select>
+    </div>
+    <div class="section">
+      <div class="section-title" data-i18n="settings.shortcuts">Kısayollar</div>
+      <div id="shortcutList"></div>
+    </div>
+    <div class="btns">
+      <button class="ok" id="settingsClose" data-i18n="settings.close">Kapat</button>
+    </div>
+  </div>
+</div>
+  </div>
 </div>
 
-<div id="sidebar"><div class="title">Parçalar</div><ul id="treeList"></ul></div>
+<div id="topbar">
+  <input type="number" id="multiCount" value="1" min="1" max="50" data-i18n-title="toolbar.multiCount" title="Çoklu sayı (1=tek)">
+  <button data-type="raf"><span>▬</span> <span data-i18n="btn.shelf">Raf</span></button>
+  <button data-type="cekmece"><span>🗄</span> <span data-i18n="btn.drawer">Çekmece</span></button>
+  <button data-type="aski"><span>〰</span> <span data-i18n="btn.rod">Askı</span></button>
+  <button data-type="dikme"><span>▮</span> <span data-i18n="btn.divider">Dikme</span></button>
+  <div class="sep"></div>
+  <button data-type="kapak-ic"><span>🚪</span> <span data-i18n="btn.innerDoor">İç Kapak</span></button>
+  <button data-type="kapak-dis"><span>🚪</span> <span data-i18n="btn.outerDoor">Dış Kapak</span></button>
+</div>
 
-<div id="props"><div class="title">Özellikler</div><div id="propsContent"></div></div>
+<div id="sidebar"><div class="title" data-i18n="sidebar.title">Parçalar</div><ul id="treeList"></ul></div>
+
+<div id="props"><div class="title" data-i18n="props.title">Özellikler</div><div id="propsContent"></div></div>
 
 <div id="toolbar">
-  <button id="toolSelect" class="active">✋ Seç</button>
-  <button id="toolMove">✥ Taşı</button>
+  <button id="toolSelect" class="active" data-i18n="btn.select">✋ Seç</button>
+  <button id="toolMove" data-i18n="btn.move">✥ Taşı</button>
   <div class="sep"></div>
-  <button id="btnExport">📊 Dışa Aktar</button>
+  <button id="btnExport" data-i18n="btn.export">📊 Dışa Aktar</button>
   <div class="sep"></div>
-  <button id="btnCalc">🔢 Hesap</button>
+  <button id="btnCalc" data-i18n="btn.calc">🔢 Hesap</button>
   <div class="sep"></div>
-  <button id="btnNew">🔄 Yeni</button>
+  <button id="btnNew" data-i18n="btn.new">🔄 Yeni</button>
   <div class="sep"></div>
-  <button id="btnSave">💾 Kaydet</button>
-  <button id="btnLoad">📂 Aç</button>
+  <button id="btnSave" data-i18n="btn.save">💾 Kaydet</button>
+  <button id="btnLoad" data-i18n="btn.open">📂 Aç</button>
+  <div class="sep"></div>
+  <button id="btnSettings">⚙️</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
 
+<script src="js/i18n.js"></script>
 <script src="js/cabinet.js"></script>
 <script src="js/state.js"></script>
 <script src="js/ui.js"></script>
