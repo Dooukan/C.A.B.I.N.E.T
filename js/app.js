@@ -352,7 +352,7 @@ async function addElement(type) {
     for (let i = 0; i < num; i++) {
       const drawerY = cells[0].yB + (i + 1) * cellH / (num + 1);
       const node = new CabinetNode('çekmece', cabinet);
-      node.setSize(drawerW, d, t);
+      node.setSize(drawerW, d, 0.2);
       node.setBaseRotation(90, 0, 0);
       node.updatePos((minX + maxX) / 2, drawerY, 0);
       node.color = '#795548';
