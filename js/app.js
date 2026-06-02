@@ -311,6 +311,7 @@ function removeNode(node) {
   meshToNode.forEach((n, m) => { if (n === node) meshToNode.delete(m); });
   renderProps();
   renderCellMarkers();
+  renderTree();
   renderDimensions();
 }
 
