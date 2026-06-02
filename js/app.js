@@ -458,15 +458,22 @@ document.getElementById('toolSelect').addEventListener('click', () => setActiveT
 document.getElementById('toolMove').addEventListener('click', () => setActiveTool('move'));
 
 let _ctrlHandled = false;
+let _shiftLock = false;
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Control' && !_ctrlHandled) {
     _ctrlHandled = true;
     setActiveTool(activeTool === 'select' ? 'move' : 'select');
   }
+  if (e.key === 'Shift' && activeTool === 'select') {
+    controls.enabled = false;
+  }
 });
 document.addEventListener('keyup', (e) => {
   if (e.key === 'Control') _ctrlHandled = false;
+  if (e.key === 'Shift') {
+    controls.enabled = true;
+  }
 });
 
 document.addEventListener('keydown', async (e) => {
@@ -582,9 +589,13 @@ _boxSelect.el = document.createElement('div');
 _boxSelect.el.style.cssText = 'position:fixed;border:2px dashed #e67e22;background:rgba(230,126,34,0.08);pointer-events:none;z-index:100;display:none';
 document.body.appendChild(_boxSelect.el);
 
+renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
 renderer.domElement.addEventListener('mousedown', (e) => {
-  if (e.shiftKey && e.button === 0 && activeTool === 'select' && !isTransforming) {
+  const isBox = (e.button === 2 || (e.shiftKey && e.button === 0)) && activeTool === 'select' && !isTransforming;
+  if (isBox) {
     e.stopImmediatePropagation();
+    e.preventDefault();
     _boxSelect.active = true;
     _boxSelect.startX = _boxSelect.endX = e.clientX;
     _boxSelect.startY = _boxSelect.endY = e.clientY;
