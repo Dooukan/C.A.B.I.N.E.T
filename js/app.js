@@ -541,12 +541,10 @@ function attachTransform() {
 document.getElementById('toolSelect').addEventListener('click', () => setActiveTool('select'));
 document.getElementById('toolMove').addEventListener('click', () => setActiveTool('move'));
 
-let _ctrlHandled = false;
 let _shiftLock = false;
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Control' && !_ctrlHandled) {
-    _ctrlHandled = true;
+  if (e.key === 'x' && !e.ctrlKey && !e.metaKey) {
     setActiveTool(activeTool === 'select' ? 'move' : 'select');
   }
   if (e.key === 'Shift' && activeTool === 'select') {
@@ -554,7 +552,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 document.addEventListener('keyup', (e) => {
-  if (e.key === 'Control') _ctrlHandled = false;
   if (e.key === 'Shift') {
     controls.enabled = true;
   }
