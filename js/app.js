@@ -538,40 +538,24 @@ function _clearBoxHighlights() {
 function _boxSelectIn(screenRect) {
   _selectedCells = [];
   _selectedCellSide = null;
-  const cells = getCells();
-  if (!cells.length) return;
-  const rect = renderer.domElement.getBoundingClientRect();
-  const v = new THREE.Vector3();
-  const boxCx = (screenRect.x + screenRect.z) / 2;
-  for (const cell of cells) {
-    const cc = [
-      [cell.xL, cell.yB], [cell.xR, cell.yB],
-      [cell.xL, cell.yT], [cell.xR, cell.yT],
-    ];
-    let hit = false;
-    for (const [px, py] of cc) {
-      v.set(px, py, 0).project(camera);
-      const sx = rect.left + (v.x * 0.5 + 0.5) * rect.width;
-      const sy = rect.top + (-v.y * 0.5 + 0.5) * rect.height;
-      if (v.z <= 1 && sx >= screenRect.x && sx <= screenRect.z && sy >= screenRect.y && sy <= screenRect.w) {
-        hit = true;
-        break;
-      }
-    }
-    if (!hit) continue;
-    _selectedCells.push(cell);
-    v.set(cell.cx, cell.cy, 0).project(camera);
-    const cellSx = rect.left + (v.x * 0.5 + 0.5) * rect.width;
-    _selectedCellSide = boxCx > cellSx ? 'right' : 'left';
-  }
   _clearBoxHighlights();
-  if (!_selectedCells.length) return;
-  document.querySelectorAll('.cellMarker').forEach(m => {
-    const inSel = _selectedCells.some(c => +m.dataset.cx === c.cx && +m.dataset.cy === c.cy);
-    m.classList.toggle('selected', inSel);
-    const activeHalf = inSel ? _selectedCellSide : null;
-    m.querySelectorAll('.half').forEach(h => h.classList.toggle('active', activeHalf && h.dataset.side === activeHalf));
-  });
+  const boxCx = (screenRect.x + screenRect.z) / 2;
+  const hits = [];
+  for (const m of document.querySelectorAll('.cellMarker')) {
+    const r = m.getBoundingClientRect();
+    if (r.right < screenRect.x || r.left > screenRect.z || r.bottom < screenRect.y || r.top > screenRect.w) continue;
+    hits.push({ el: m, rect: r });
+    _selectedCells.push({
+      xL: +m.dataset.xl, xR: +m.dataset.xr, yB: +m.dataset.yb, yT: +m.dataset.yt,
+      cx: +m.dataset.cx, cy: +m.dataset.cy, w: +m.dataset.w, h: +m.dataset.h,
+    });
+  }
+  if (!hits.length) return;
+  _selectedCellSide = boxCx > hits.reduce((s, h) => s + (h.rect.left + h.rect.right) / 2, 0) / hits.length ? 'right' : 'left';
+  for (const { el } of hits) {
+    el.classList.add('selected');
+    el.querySelectorAll('.half').forEach(h => h.classList.toggle('active', h.dataset.side === _selectedCellSide));
+  }
 }
 
 const _boxSelect = { active: false, startX: 0, startY: 0, endX: 0, endY: 0, el: null };
