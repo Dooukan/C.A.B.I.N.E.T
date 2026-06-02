@@ -582,12 +582,9 @@ _boxSelect.el = document.createElement('div');
 _boxSelect.el.style.cssText = 'position:fixed;border:2px dashed #e67e22;background:rgba(230,126,34,0.08);pointer-events:none;z-index:100;display:none';
 document.body.appendChild(_boxSelect.el);
 
-let _boxPreventClick = false;
-
 renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.shiftKey && e.button === 0 && activeTool === 'select' && !isTransforming) {
-    controls.enabled = false;
-    _boxPreventClick = false;
+    e.stopImmediatePropagation();
     _boxSelect.active = true;
     _boxSelect.startX = _boxSelect.endX = e.clientX;
     _boxSelect.startY = _boxSelect.endY = e.clientY;
@@ -617,11 +614,9 @@ document.addEventListener('mouseup', (e) => {
   if (!_boxSelect.active) return;
   _boxSelect.active = false;
   _boxSelect.el.style.display = 'none';
-  controls.enabled = true;
   const dx = Math.abs(_boxSelect.endX - _boxSelect.startX);
   const dy = Math.abs(_boxSelect.endY - _boxSelect.startY);
-  if (dx < 5 && dy < 5) { _boxPreventClick = false; return; }
-  _boxPreventClick = true;
+  if (dx < 5 && dy < 5) return;
   _selectedCells = [];
   _selectedCellSide = null;
   document.querySelectorAll('.cellMarker').forEach(m => m.classList.remove('selected'));
@@ -635,7 +630,6 @@ document.addEventListener('mouseup', (e) => {
 
 renderer.domElement.addEventListener('click', (e) => {
   if (isTransforming) return;
-  if (_boxPreventClick) { _boxPreventClick = false; return; }
   _clearBoxHighlights();
   _selectedCells = [];
   _selectedCellSide = null;
