@@ -364,11 +364,11 @@ async function addElement(type) {
       back.updatePos(0, 0, -drawerD / 2 + t / 2);
       back.color = '#795548';
       const left = new CabinetNode('çekmece sol', parent);
-      left.setSize(t, cellH, drawerD);
+      left.setSize(t, cellH, drawerD - t * 2);
       left.updatePos(-drawerW / 2 + t / 2, 0, 0);
       left.color = '#795548';
       const right = new CabinetNode('çekmece sağ', parent);
-      right.setSize(t, cellH, drawerD);
+      right.setSize(t, cellH, drawerD - t * 2);
       right.updatePos(drawerW / 2 - t / 2, 0, 0);
       right.color = '#795548';
       const front = new CabinetNode('çekmece kapağı', parent);
