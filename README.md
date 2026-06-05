@@ -38,3 +38,4 @@ Open `http://localhost:8080` in your browser.
 │   ├── ui.js           # Sidebar, props, dialogs, calculator
 │   └── app.js          # Scene setup, event handlers, main loop
 ```
+HOLE PROJECT IS AI use whit caution!
